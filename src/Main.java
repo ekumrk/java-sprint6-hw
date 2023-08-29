@@ -1,8 +1,11 @@
 import manager.InMemoryTaskManager;
 import tasks.*;
 
+import java.io.IOException;
+
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+
 
         InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager();
         Task task;

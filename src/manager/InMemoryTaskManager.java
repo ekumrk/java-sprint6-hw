@@ -1,9 +1,11 @@
 package manager;
 import tasks.*;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -12,12 +14,11 @@ public class InMemoryTaskManager implements TaskManager {
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
     private final Map<Integer, Epic> epics = new HashMap<>();
-    /*Принял, спасибо за комментарии! 
-    Я просто боюсь чего-то напортачить с модификаторами, поэтому стараюсь ими не увлекаться */
-
 
     private HistoryManager historyManager = Managers.getDefaultHistory();
 
+    public InMemoryTaskManager() throws IOException {
+    }
 
 
     @Override
@@ -26,7 +27,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
     @Override
-    public int createNewTask(Task task) {
+    public int createNewTask(Task task) throws IOException {
         task.setId(nextId);
         nextId++;
         tasks.put(task.getId(), task);
@@ -63,7 +64,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public int createNewEpic(Epic epic) {
+    public int createNewEpic(Epic epic) throws IOException {
         epic.setId(nextId);
         nextId++;
         epics.put(epic.getId(), epic);
@@ -112,7 +113,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Integer createNewSubtask(Subtask subtask) {
+    public Integer createNewSubtask(Subtask subtask) throws IOException {
         subtask.setId(nextId);
         nextId++;
         subtasks.put(subtask.getId(), subtask);

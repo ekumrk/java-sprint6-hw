@@ -12,4 +12,9 @@ public class Subtask extends Task {
 
         return epicId;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Subtask, %s, %s, %s, %s, %s", id, title, content, status, epicId);
+    }
 }

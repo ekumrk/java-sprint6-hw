@@ -28,4 +28,9 @@ public class Task {
 
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Task, %s, %s, %s, %s", id, title, content, status );
+    }
 }

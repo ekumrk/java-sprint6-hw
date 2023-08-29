@@ -2,12 +2,13 @@ package manager;
 
 import tasks.Task;
 
+import java.io.IOException;
 import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
     private static class Node {
-        private Task item;
+        final private Task item;
         private Node next;
         private Node prev;
 
@@ -22,6 +23,15 @@ public class InMemoryHistoryManager implements HistoryManager {
     private Node first;
     private Node last;
 
+    public InMemoryHistoryManager() throws IOException {
+        loadFromFile();
+    }
+
+    void loadFromFile() throws IOException {
+        FileManager fileManager = new FileManager();
+        fileManager.readListFromFile();
+    }
+
     @Override
     public void addToHistoryTask(Task task) {
         if (viewsHistory.containsKey(task.getId())) {
@@ -33,7 +43,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public List<Task> getHistory() {
-        ArrayList<Task> list = new ArrayList<>();
+        List<Task> list = new ArrayList<>();
         Node current = first;
         while (current != null) {
             list.add(current.item);
