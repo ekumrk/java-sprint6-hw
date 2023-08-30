@@ -36,6 +36,7 @@ public class InMemoryTaskManager implements TaskManager {
         task.setId(nextId);
         nextId++;
         tasks.put(task.getId(), task);
+        allTasks.add(task);
         return (task.getId());
     }
 
@@ -73,6 +74,7 @@ public class InMemoryTaskManager implements TaskManager {
         epic.setId(nextId);
         nextId++;
         epics.put(epic.getId(), epic);
+        allTasks.add(epic);
         return (epic.getId());
     }
 
@@ -122,6 +124,7 @@ public class InMemoryTaskManager implements TaskManager {
         subtask.setId(nextId);
         nextId++;
         subtasks.put(subtask.getId(), subtask);
+        allTasks.add(subtask);
 
         Epic epic = epics.get(subtask.getEpicId());
         if (epic == null) {

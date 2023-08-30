@@ -8,7 +8,7 @@ import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
-       private FileManager fileManager = new FileManager("dev/java-sprint6-hw/resources/history.csv");
+       private final FileManager fileManager = new FileManager("dev/java-sprint6-hw/resources/history.csv");
        //при инициализации в конструктор сразу запускается readListFromFile()
 
     public FileBackedTaskManager() throws IOException {
@@ -51,25 +51,22 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return subtask.getId();
     }
 
-    private String toString (Task task) {
-        return task.toString();
-    }
-    private Task fromString(String value) {
+    public Task fromString(String value) {
         String[] stringToTask = value.split(",");
-        switch (stringToTask[0]) {
-            case "Task":
-                Task task = new Task(stringToTask[2], stringToTask[3]);
-                return task;
-            case "Epic":
-                Epic epic = new Epic(stringToTask[2], stringToTask[3]);
-                return epic;
-            case "Subtask":
+        if (stringToTask[0].equals(TaskTypes.TASK)) {
+            Task task = new Task(stringToTask[2], stringToTask[3]);
+            return task;
+        } else if (stringToTask[0].equals(TaskTypes.EPIC)) {
+            Epic epic = new Epic(stringToTask[2], stringToTask[3]);
+            return epic;
+        } else if (stringToTask[0].equals(TaskTypes.SUBTASK)) {
                 Subtask subtask = new Subtask(stringToTask[2], stringToTask[3], Integer.parseInt(stringToTask[5]));
                 return subtask;
         }
         return null;
     }
 
+    //я запутался, где применить этот метод(
     static String historyToString(HistoryManager manager) {
         List<Task> tasksHistory = manager.getHistory();
         StringBuilder builder = new StringBuilder();

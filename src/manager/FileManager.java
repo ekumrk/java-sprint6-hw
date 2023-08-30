@@ -7,34 +7,48 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import tasks.*;
 
 public class FileManager {
     private static final String HOME = System.getProperty("user.home");
     private String filename;
 
     Path historyFile = Paths.get(HOME, filename);
+    FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager();
 
     public FileManager(String filename) throws IOException {
         this.filename = filename;
         readListFromFile();
     }
 
-    public List<String> readListFromFile() throws IOException {
+    public void readListFromFile() throws IOException {
         try (BufferedReader br = new BufferedReader(new FileReader(String.valueOf(historyFile), StandardCharsets.UTF_8))) {
 
-            List<String> subList = new ArrayList<>();
-
             while (br.ready()) {
-                String line = br.readLine();
-                subList.add(line);
+                String lines = br.readLine();
+                String[] line = lines.split(",");
+                if (line[1].equals(TaskTypes.TASK)) {
+                    Task task = fileBackedTaskManager.fromString(Arrays.toString(line));
+                    fileBackedTaskManager.createNewTask(task);
+                } else if (line[1].equals(TaskTypes.EPIC)) {
+                    Epic epic = (Epic) fileBackedTaskManager.fromString(Arrays.toString(line));
+                    fileBackedTaskManager.createNewEpic(epic);
+                } else if (line[1].equals(TaskTypes.SUBTASK)) {
+                    Subtask subtask = (Subtask) fileBackedTaskManager.fromString(Arrays.toString(line));
+                    fileBackedTaskManager.createNewSubtask(subtask);
+                } else if (line[1].isBlank()) {
+                    continue;
+                } else {
+                    fileBackedTaskManager.historyFromString(Arrays.toString(line));
+                }
             }
 
-            return subList;
+
         } catch (IOException e) {
             System.out.println("Произошла ошибка во время чтения файла.");
-            return null;
+
         }
     }
 
