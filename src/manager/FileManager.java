@@ -12,8 +12,14 @@ import java.util.List;
 
 public class FileManager {
     private static final String HOME = System.getProperty("user.home");
+    private String filename;
 
-    Path historyFile = Paths.get(HOME + "dev/java-sprint6-hw/resources/history.csv");
+    Path historyFile = Paths.get(HOME, filename);
+
+    public FileManager(String filename) throws IOException {
+        this.filename = filename;
+        readListFromFile();
+    }
 
     public List<String> readListFromFile() throws IOException {
         try (BufferedReader br = new BufferedReader(new FileReader(String.valueOf(historyFile), StandardCharsets.UTF_8))) {
@@ -32,11 +38,15 @@ public class FileManager {
         }
     }
 
-    public void writeToFile(List<String> history) throws IOException {
+    public void writeToFile(List<String> tasks, List<String> history) throws IOException {
         try (FileWriter writer = new FileWriter(String.valueOf(historyFile), StandardCharsets.UTF_8)) {
             writer.write("id,type,name,status,description,epic \n");
-            for (String element : history) {
+            for (String element : tasks) {
                 writer.write(element + "\n");
+            }
+            writer.write("\n");
+            for (String element : history) {
+                writer.write(element + ",");
             }
         } catch (IOException e) {
             System.out.println("Произошла ошибка во время записи файла.");

@@ -23,22 +23,18 @@ public class InMemoryHistoryManager implements HistoryManager {
     private Node first;
     private Node last;
 
-    public InMemoryHistoryManager() throws IOException {
-        loadFromFile();
+
+    public InMemoryHistoryManager(){
     }
 
-    void loadFromFile() throws IOException {
-        FileManager fileManager = new FileManager();
-        fileManager.readListFromFile();
-    }
 
     @Override
     public void addToHistoryTask(Task task) {
         if (viewsHistory.containsKey(task.getId())) {
             Node node = viewsHistory.get(task.getId());
             removeNode(node);
+            linkLast(task);
         }
-        linkLast(task);
     }
 
     @Override

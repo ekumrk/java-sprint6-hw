@@ -2,22 +2,26 @@ package manager;
 
 import tasks.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
-       private FileManager fileManager = new FileManager();
+       private FileManager fileManager = new FileManager("dev/java-sprint6-hw/resources/history.csv");
+       //при инициализации в конструктор сразу запускается readListFromFile()
 
     public FileBackedTaskManager() throws IOException {
     }
 
     private void save() throws ManagerSaveException {
         try {
-            List<String> history = List.of(getHistory().toString());
-            fileManager.writeToFile(history);
+            List<String> allTasksToString = new ArrayList<>();
+            for (Task task : allTasks) {
+                allTasksToString.add(task.toString());
+            }
+            List<String> historyToString = List.of(getHistory().toString());
+            fileManager.writeToFile(allTasksToString, historyToString);
         } catch (ManagerSaveException e) {
            e.getMessage();
        } catch (IOException e) {

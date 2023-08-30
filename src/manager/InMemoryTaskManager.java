@@ -15,11 +15,16 @@ public class InMemoryTaskManager implements TaskManager {
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
     private final Map<Integer, Epic> epics = new HashMap<>();
 
+    protected final List<Task> allTasks = new ArrayList<>();
+
     private HistoryManager historyManager = Managers.getDefaultHistory();
 
     public InMemoryTaskManager() throws IOException {
     }
 
+    void addToAll(Task task) {
+        allTasks.add(task);
+    }
 
     @Override
     public List<Task> getHistory() {

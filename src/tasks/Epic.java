@@ -14,14 +14,10 @@ public class Epic extends Task {
         return subtasksId;
     }
 
-    public void setStatus(Status status) {
-
-        this.status = status;
-    }
 
     @Override
     public String toString() {
-        return String.format("Epic, %s, %s, %s, %s", id, title, content, status);
+        return String.format("%s, %s, %s, %s, %s", TaskTypes.EPIC, id, title, content, status);
     }
 }
 
