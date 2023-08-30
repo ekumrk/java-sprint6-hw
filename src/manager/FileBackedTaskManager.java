@@ -9,25 +9,20 @@ import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
-       FileManager fileManager = new FileManager();
+       private FileManager fileManager = new FileManager();
 
     public FileBackedTaskManager() throws IOException {
     }
 
-    private void save() throws IOException {
-        List<String> history = new ArrayList<>();
+    private void save() throws ManagerSaveException {
         try {
-            try {
-                for (Task e : getHistory()) {
-                history.add(e.toString());
-            }
+            List<String> history = List.of(getHistory().toString());
             fileManager.writeToFile(history);
-        } catch (IOException e) {
+        } catch (ManagerSaveException e) {
+           e.getMessage();
+       } catch (IOException e) {
             throw new ManagerSaveException("Ошибка сохранения менеджером");
         }
-    } catch (ManagerSaveException e) {
-           e.getMessage();
-       }
 
     }
 
