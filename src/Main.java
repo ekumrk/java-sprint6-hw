@@ -7,7 +7,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
 
-        FileBackedTaskManager f = new FileBackedTaskManager();
+        FileBackedTaskManager f = new FileBackedTaskManager("//dev//java-sprint6-hw//resources//history.csv");
         Task task;
         Epic epic;
         Subtask subtask;

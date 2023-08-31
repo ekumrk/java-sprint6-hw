@@ -15,16 +15,11 @@ public class InMemoryTaskManager implements TaskManager {
     protected final Map<Integer, Subtask> subtasks = new HashMap<>();
     protected final Map<Integer, Epic> epics = new HashMap<>();
 
-    protected final List<Task> allTasks = new ArrayList<>();
-
     private HistoryManager historyManager = Managers.getDefaultHistory();
 
     public InMemoryTaskManager() throws IOException {
     }
 
-    void addToAll(Task task) {
-        allTasks.add(task);
-    }
 
     @Override
     public List<Task> getHistory() {
@@ -36,7 +31,6 @@ public class InMemoryTaskManager implements TaskManager {
         task.setId(nextId);
         nextId++;
         tasks.put(task.getId(), task);
-        allTasks.add(task);
         return (task.getId());
     }
 
@@ -74,7 +68,6 @@ public class InMemoryTaskManager implements TaskManager {
         epic.setId(nextId);
         nextId++;
         epics.put(epic.getId(), epic);
-        allTasks.add(epic);
         return (epic.getId());
     }
 
@@ -124,7 +117,6 @@ public class InMemoryTaskManager implements TaskManager {
         subtask.setId(nextId);
         nextId++;
         subtasks.put(subtask.getId(), subtask);
-        allTasks.add(subtask);
 
         Epic epic = epics.get(subtask.getEpicId());
         if (epic == null) {

@@ -18,30 +18,33 @@ import java.util.List;
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private static final String HOME = System.getProperty("user.home");
-    private String fileName = "//dev//java-sprint6-hw//resources//history.csv";
+    private String fileName;
     private final Path historyFile = Paths.get(HOME, fileName);
 
     HistoryManager historyManager = Managers.getDefaultHistory();
 
-    public FileBackedTaskManager() throws IOException {
+    public FileBackedTaskManager(String fileName) throws IOException {
+        this.fileName = fileName;
         readListFromFile();
-        //при инициализации в конструктор сразу запускается readListFromFile()
-        // почемуто когда передаю в конструктор fileName, выдаёт постоянно nullpointer, поэтому инициализирую поле здесь(
     }
 
-    private void save() throws ManagerSaveException {
+    private void save() throws IOException {
         try {
             List<String> allTasksToString = new ArrayList<>();
-            for (Task task : allTasks) {
+            for (Task task : tasks.values()) {
                 allTasksToString.add(task.toString());
+            }
+            for (Epic epic : epics.values()) {
+                allTasksToString.add(epic.toString());
+            }
+            for (Subtask subtask : subtasks.values()) {
+                allTasksToString.add(subtask.toString());
             }
             List<String> historyToString = Collections.singletonList(historyToString(historyManager));
             writeToFile(allTasksToString, historyToString);
         } catch (ManagerSaveException e) {
-           e.getMessage();
-       } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка сохранения менеджером");
-        }
+            System.out.println("Ошибка сохранения в файл");
+       }
 
     }
 
@@ -120,8 +123,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             for (String element : history) {
                 writer.write(element + ",");
             }
-        } catch (IOException e) {
-            System.out.println("Произошла ошибка во время записи файла.");
         }
     }
 
