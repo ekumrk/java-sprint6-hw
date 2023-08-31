@@ -2,16 +2,31 @@ package manager;
 
 import tasks.*;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
-       private final FileManager fileManager = new FileManager("dev/java-sprint6-hw/resources/history.csv");
-       //при инициализации в конструктор сразу запускается readListFromFile()
+    private static final String HOME = System.getProperty("user.home");
+    private String fileName = "//dev//java-sprint6-hw//resources//history.csv";
+    private final Path historyFile = Paths.get(HOME, fileName);
+
+    HistoryManager historyManager = Managers.getDefaultHistory();
 
     public FileBackedTaskManager() throws IOException {
+        readListFromFile();
+        //при инициализации в конструктор сразу запускается readListFromFile()
+        // почемуто когда передаю в конструктор fileName, выдаёт постоянно nullpointer, поэтому инициализирую поле здесь(
     }
 
     private void save() throws ManagerSaveException {
@@ -20,8 +35,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             for (Task task : allTasks) {
                 allTasksToString.add(task.toString());
             }
-            List<String> historyToString = List.of(getHistory().toString());
-            fileManager.writeToFile(allTasksToString, historyToString);
+            List<String> historyToString = Collections.singletonList(historyToString(historyManager));
+            writeToFile(allTasksToString, historyToString);
         } catch (ManagerSaveException e) {
            e.getMessage();
        } catch (IOException e) {
@@ -51,29 +66,78 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return subtask.getId();
     }
 
-    public Task fromString(String value) {
-        String[] stringToTask = value.split(",");
-        if (stringToTask[0].equals(TaskTypes.TASK)) {
-            Task task = new Task(stringToTask[2], stringToTask[3]);
-            return task;
-        } else if (stringToTask[0].equals(TaskTypes.EPIC)) {
-            Epic epic = new Epic(stringToTask[2], stringToTask[3]);
-            return epic;
-        } else if (stringToTask[0].equals(TaskTypes.SUBTASK)) {
-                Subtask subtask = new Subtask(stringToTask[2], stringToTask[3], Integer.parseInt(stringToTask[5]));
-                return subtask;
+    public void readListFromFile() throws IOException {
+        if (Files.size(historyFile) != 0) {
+            try (BufferedReader br = new BufferedReader(new FileReader(String.valueOf(historyFile),
+                    StandardCharsets.UTF_8))) {
+
+                while (br.ready()) {
+                    String lines = br.readLine();
+                    if (!(lines.isBlank())) {
+                        String[] line = lines.split(",");
+                        if (line[1].equals(TaskTypes.TASK.toString())) {
+                            Task task = fromString(Arrays.toString(line));
+                            super.createNewTask(task);
+                        } else if (line[1].equals(TaskTypes.EPIC.toString())) {
+                            Epic epic = (Epic) fromString(Arrays.toString(line));
+                            super.createNewEpic(epic);
+                        } else if (line[1].equals(TaskTypes.SUBTASK.toString())) {
+                            Subtask subtask = (Subtask) fromString(Arrays.toString(line));
+                            super.createNewSubtask(subtask);
+                        } else if (!(line[1].equals(TaskTypes.TASK.toString()) && line[1].equals(TaskTypes.EPIC.toString())
+                                && line[1].equals(TaskTypes.SUBTASK.toString()) && line[1].equals("[id"))) {
+                            List<Integer> historyId = historyFromString(Arrays.toString(line));
+                            for (Integer e : historyId) {
+                                if (tasks.containsKey(e)) {
+                                    Task task = tasks.get(e);
+                                    historyManager.addToHistoryTask(task);
+                                } else if (epics.containsKey(e)) {
+                                    Epic epic = epics.get(e);
+                                    historyManager.addToHistoryTask(epic);
+                                } else if (subtasks.containsKey(e)) {
+                                    Subtask subtask = subtasks.get(e);
+                                    historyManager.addToHistoryTask(subtask);
+                                }
+                            }
+                        }
+                    }
+                }
+
+            } catch (IOException e) {
+                System.out.println("Произошла ошибка во время чтения файла.");
+
+            }
         }
-        return null;
     }
 
-    //я запутался, где применить этот метод(
-    static String historyToString(HistoryManager manager) {
-        List<Task> tasksHistory = manager.getHistory();
-        StringBuilder builder = new StringBuilder();
-        for (Task t : tasksHistory) {
-           builder.append(t.getId() + ", ");
+    public void writeToFile(List<String> tasks, List<String> history) throws IOException {
+        try (FileWriter writer = new FileWriter(String.valueOf(historyFile), StandardCharsets.UTF_8)) {
+            writer.write("id,type,name,status,description,epicID \n");
+            for (String element : tasks) {
+                writer.write(element + "\n");
+            }
+            writer.write("\n");
+            for (String element : history) {
+                writer.write(element + ",");
+            }
+        } catch (IOException e) {
+            System.out.println("Произошла ошибка во время записи файла.");
         }
-        return builder.toString();
+    }
+
+    public Task fromString(String value) {
+        String[] stringToTask = value.split(",");
+        if (stringToTask[0].equals(TaskTypes.TASK.toString())) {
+            Task task = new Task(stringToTask[2], stringToTask[3]);
+            return task;
+        } else if (stringToTask[0].equals(TaskTypes.EPIC.toString())) {
+            Epic epic = new Epic(stringToTask[2], stringToTask[3]);
+            return epic;
+        } else if (stringToTask[0].equals(TaskTypes.SUBTASK.toString())) {
+            Subtask subtask = new Subtask(stringToTask[2], stringToTask[3], Integer.parseInt(stringToTask[5]));
+            return subtask;
+        }
+        return null;
     }
 
     static List<Integer> historyFromString(String value) {
@@ -82,5 +146,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             taskIds.add(Integer.parseInt(v));
         }
         return taskIds;
+    }
+
+    static String historyToString(HistoryManager manager) {
+        List<Task> tasksHistory = manager.getHistory();
+        StringBuilder builder = new StringBuilder();
+        for (Task t : tasksHistory) {
+            builder.append(t.getId() + ", ");
+        }
+        return builder.toString();
     }
 }

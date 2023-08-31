@@ -35,6 +35,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             removeNode(node);
             linkLast(task);
         }
+        linkLast(task);
     }
 
     @Override

@@ -31,6 +31,6 @@ public class Task {
 
     @Override
     public String toString() {
-        return String.format("%s, %s, %s, %s, %s", TaskTypes.TASK, id, title, content, status );
+        return String.format("%s, %s, %s, %s, %s", id, TaskTypes.TASK, title, status, content);
     }
 }
